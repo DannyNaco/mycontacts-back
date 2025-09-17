@@ -1,0 +1,5 @@
+.env
+node_modules/
+
+src/models/test.model.js
+src/routes/test.routes.js

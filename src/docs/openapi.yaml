@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: MyContacts API
+  version: 1.0.0
+  description: API d’authentification + CRUD Contacts (JWT)
+servers:
+  - url: http://localhost:3000
+    description: Dev
+
+tags:
+  - name: Auth
+  - name: Contacts
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserPublic:
+      type: object
+      properties:
+        id: { type: string, example: "66fc0c90d9a8f7b3a12e34cd" }
+        email: { type: string, example: "user@example.com" }
+        nomprenom: { type: string, example: "Jane Doe" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Contact:
+      type: object
+      properties:
+        id: { type: string, example: "66fc0c90d9a8f7b3a12e34cd" }
+        firstName: { type: string, example: "Jean" }
+        lastName: { type: string, example: "Dupont" }
+        phone: { type: string, example: "+33611223344" }
+        anneeNaissance: { type: integer, example: 1995 }
+        AjoutPar: { type: string, example: "66fbff4f08d4e2a12c34aa91" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ContactCreate:
+      type: object
+      required: [firstName, lastName, phone]
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        phone: { type: string }
+        anneeNaissance: { type: integer }
+
+    ContactUpdate:
+      type: object
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        phone: { type: string }
+        anneeNaissance: { type: integer }
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Créer un utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, nomprenom]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 6 }
+                nomprenom: { type: string }
+      responses:
+        "201":
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPublic"
+        "409": { description: Email déjà utilisé }
+        "400": { description: Données invalides }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Se connecter (JWT)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: Token + info user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: "eyJhbGciOi..." }
+                  user:
+                    $ref: "#/components/schemas/UserPublic"
+        "401": { description: Identifiants invalides }
+
+  /contacts:
+    get:
+      tags: [Contacts]
+      summary: Lister mes contacts
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Liste des contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+        "401": { description: Non authentifié }
+
+    post:
+      tags: [Contacts]
+      summary: Créer un contact
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactCreate"
+      responses:
+        "201":
+          description: Contact créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        "409": { description: Téléphone déjà utilisé }
+        "400": { description: Données invalides }
+        "401": { description: Non authentifié }
+
+  /contacts/{id}:
+    get:
+      tags: [Contacts]
+      summary: Obtenir un contact
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Contact
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        "404": { description: Introuvable }
+        "401": { description: Non authentifié }
+
+    patch:
+      tags: [Contacts]
+      summary: Mettre à jour un contact
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactUpdate"
+      responses:
+        "200":
+          description: Contact mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        "400": { description: Données invalides }
+        "404": { description: Introuvable }
+        "409": { description: Téléphone déjà utilisé }
+        "401": { description: Non authentifié }
+
+    delete:
+      tags: [Contacts]
+      summary: Supprimer un contact
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Contact supprimé }
+        "404": { description: Introuvable }
+        "401": { description: Non authentifié }
