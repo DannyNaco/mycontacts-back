@@ -4,10 +4,12 @@ info:
   version: 1.0.0
   description: API d’authentification + CRUD Contacts (JWT)
 servers:
-  - url: http://localhost:3000
-    description: Dev
+  - url: /
+    description: Same origin
   - url: https://mycontacts-api-u2mk.onrender.com
     description: Prod
+  - url: http://localhost:3000
+    description: Dev
 
 tags:
   - name: Auth
