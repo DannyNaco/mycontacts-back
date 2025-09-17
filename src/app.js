@@ -10,7 +10,7 @@ const YAML = require('yamljs');
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:3000', //swagger local
-  'https://mycontacts-api-u2mk.onrender.com' // pr pouvoir faire les bails sur le swagger en ligne
+  'https://mycontacts-api-u2mk.onrender.com', // pr pouvoir faire les bails sur le swagger en ligne
 ];
 
 app.use(cors({
