@@ -13,7 +13,7 @@ const UserSchema = new Schema(
       required: true,
       unique: true,
       lowercase: true,
-      trim: true, // enlève les espaces avant/après
+      trim: true, // enlève les espaces avant et après l'email si le mec en met
       index: true, 
       match: [/\S+@\S+\.\S+/, 'is invalid'],
     },
@@ -27,7 +27,7 @@ const UserSchema = new Schema(
     
 
     { 
-        timestamps: true 
+        timestamps: true // ca met auto le createAt et updatedAt
     }
 
 );

@@ -41,11 +41,10 @@ const ContactSchema = new Schema(
 
 // Au lieu de unique: true sur phone, on crée un index composé qui permet que plusieurs contacts aient le même numéro de téléphone, 
 // mais pas pour un même utilisateur (AjoutPar)
-
 ContactSchema.index({ AjoutPar: 1, phone: 1 }, { unique: true }); // Cela renvoie une erreur avec un message indiquant que le contact existe déjà pour cet utilisateur.
 
 
-ContactSchema.path('AjoutPar').immutable(true); // Interdire la modification du champ AjoutPar après la création du document
+ContactSchema.path('AjoutPar').immutable(true); // Interdire la modification du champ AjoutPar après la création de la donnée
 
 ContactSchema.set('toJSON', {
     virtuals: true,
@@ -57,7 +56,7 @@ ContactSchema.set('toJSON', {
     },
 });
 
-//hook pour interdire la modification du champ AjoutPar lors d'une mise à jour
+//hook qui empeche de modifier le champ AjoutPar quand ya un mec qui fait un findOneAndUpdate
 ContactSchema.pre('findOneAndUpdate', function(next) {
   const upd = this.getUpdate() || {};
   const $set = upd.$set || {};
@@ -68,7 +67,7 @@ ContactSchema.pre('findOneAndUpdate', function(next) {
   next();
 });
 
-//hook pour enlever les espaces du numéro de téléphone avant la sauvegarde
+//hook pour enlever les espaces du numéro de téléphone avant la sauvegarde de la donnée
 ContactSchema.pre('save', function(next) {
     if (this.isModified('phone')) {
         this.phone = this.phone.replace(/\s+/g, ''); // Enlever tous les espaces
